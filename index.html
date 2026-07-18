@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>כלכלת הבית</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+:root{
+  /* פלטת iOS */
+  --bg:#F2F2F7; --card:#FFFFFF;
+  --label:#1C1C1E; --label2:#3A3A3C; --secondary:#8E8E93; --tertiary:#AEAEB2;
+  --sep:rgba(60,60,67,.12);
+  --blue:#007AFF; --green:#34C759; --red:#FF3B30; --orange:#FF9500;
+  --indigo:#5856D6; --teal:#30B0C7; --purple:#AF52DE; --pink:#FF375F; --mint:#00C7BE;
+  --fill:#E9E9EB; --fill2:#F2F2F7;
+  --card2:#FFFFFF; --seg-bg:rgba(118,118,128,.12); --seg-on:#FFFFFF;
+  --search-bg:rgba(118,118,128,.12); --tab-bg:rgba(249,249,249,.85); --tab-border:rgba(0,0,0,.15);
+  --donut-track:#F2F2F7; --grab:#C7C7CC; --sheet-bg:#F2F2F7;
+  --r-xl:20px; --r-lg:16px; --r-md:12px; --r-sm:10px;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#000000; --card:#1C1C1E; --card2:#2C2C2E;
+  --label:#FFFFFF; --label2:#D1D1D6; --secondary:#98989F; --tertiary:#5A5A5E;
+  --sep:rgba(84,84,88,.55); --fill:#2C2C2E; --fill2:#2C2C2E;
+  --seg-bg:rgba(118,118,128,.24); --seg-on:#636366;
+  --search-bg:rgba(118,118,128,.24); --tab-bg:rgba(18,18,20,.85); --tab-border:rgba(255,255,255,.12);
+  --donut-track:#2C2C2E; --grab:#48484A; --sheet-bg:#1C1C1E;
+  --blue:#0A84FF; --green:#30D158; --red:#FF453A; --orange:#FF9F0A;
+  --indigo:#5E5CE6; --teal:#40C8E0; --purple:#BF5AF2; --pink:#FF375F; --mint:#63E6E2;
+}}
+:root[data-theme="dark"]{
+  --bg:#000000; --card:#1C1C1E; --card2:#2C2C2E;
+  --label:#FFFFFF; --label2:#D1D1D6; --secondary:#98989F; --tertiary:#5A5A5E;
+  --sep:rgba(84,84,88,.55); --fill:#2C2C2E; --fill2:#2C2C2E;
+  --seg-bg:rgba(118,118,128,.24); --seg-on:#636366;
+  --search-bg:rgba(118,118,128,.24); --tab-bg:rgba(18,18,20,.85); --tab-border:rgba(255,255,255,.12);
+  --donut-track:#2C2C2E; --grab:#48484A; --sheet-bg:#1C1C1E;
+  --blue:#0A84FF; --green:#30D158; --red:#FF453A; --orange:#FF9F0A;
+  --indigo:#5E5CE6; --teal:#40C8E0; --purple:#BF5AF2; --pink:#FF375F; --mint:#63E6E2;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;color-scheme:light dark;background:var(--bg)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--label);
+  -webkit-font-smoothing:antialiased; overscroll-behavior-y:none;
+  font-size:17px; line-height:1.35;
+}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+input,select{font-family:inherit;font-size:17px}
+.num{font-variant-numeric:tabular-nums}
+#root{min-height:100dvh}
+.app{max-width:520px;margin:0 auto;min-height:100dvh}
+.screen{padding-bottom:calc(100px + var(--safe-b));animation:fade .22s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- כותרת גדולה בסגנון iOS ---------- */
+.nav{padding:calc(14px + var(--safe-t)) 20px 6px}
+.nav .sub{font-size:13px;font-weight:600;color:var(--secondary);letter-spacing:-.01em;margin-bottom:1px}
+.nav h1{font-size:34px;font-weight:800;letter-spacing:-.02em}
+.nav-row{display:flex;justify-content:space-between;align-items:flex-end}
+
+/* ---------- כרטיס מאזן (בהשראת Apple Card) ---------- */
+.hero-card{
+  margin:12px 16px 0;border-radius:24px;padding:22px 20px 20px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0A84FF 0%,#4D5DFB 55%,#5E5CE6 100%);
+  box-shadow:0 10px 28px rgba(60,90,230,.28);
+}
+.hero-card.neg{background:linear-gradient(135deg,#FF5E57 0%,#FF375F 60%,#C0264B 100%);box-shadow:0 10px 28px rgba(255,55,95,.28)}
+.hero-card::before{content:"";position:absolute;inset:-40% -20% auto auto;width:70%;height:150%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.22),transparent);transform:rotate(20deg)}
+.hc-top{display:flex;justify-content:space-between;align-items:center}
+.hc-label{font-size:13px;font-weight:600;opacity:.85}
+.hc-month{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.18);border-radius:100px;padding:3px 6px}
+.hc-month span{font-size:13px;font-weight:700;padding:0 6px;min-width:64px;text-align:center}
+.hc-month button{width:26px;height:26px;border-radius:50%;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center}
+.hc-amt{font-size:42px;font-weight:800;letter-spacing:-.03em;margin:6px 0 2px;line-height:1.05}
+.hc-sub{font-size:13.5px;opacity:.85;font-weight:500}
+.flow-bar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin-top:16px;background:rgba(255,255,255,.22)}
+.flow-bar div{transition:width .5s cubic-bezier(.22,1,.36,1)}
+.flow-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.fl{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;opacity:.95}
+.fl .d{width:8px;height:8px;border-radius:50%}
+
+/* ---------- קבוצות בסגנון הגדרות iOS ---------- */
+.grp-title{font-size:13px;font-weight:600;color:var(--secondary);text-transform:none;
+  padding:20px 32px 7px;letter-spacing:-.005em}
+.grp-row-head{display:flex;justify-content:space-between;align-items:baseline;padding:20px 32px 7px}
+.grp-row-head .grp-title{padding:0}
+.grp-link{font-size:14px;font-weight:600;color:var(--blue)}
+.grp{background:var(--card);border-radius:var(--r-lg);margin:0 16px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:52px;position:relative}
+.row + .row::before,.row.sep::before{content:"";position:absolute;top:0;inset-inline-start:60px;inset-inline-end:0;height:1px;background:var(--sep)}
+.row.no-ico + .row::before{inset-inline-start:16px}
+.row:active{background:var(--fill2)}
+.row .ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
+.row .ico svg{width:18px;height:18px}
+.row .mid{flex:1;min-width:0}
+.row .t{font-size:16.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
+.row .s{font-size:13px;color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.row .v{font-size:16.5px;font-weight:600;flex-shrink:0;letter-spacing:-.01em}
+.row .chev{color:var(--tertiary);flex-shrink:0;margin-inline-start:-4px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;vertical-align:1px;margin-inline-start:6px;background:var(--fill);color:var(--secondary)}
+
+/* ---------- סטטיסטיקות ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 16px 0}
+.stat{background:var(--card);border-radius:var(--r-lg);padding:14px 16px}
+.stat .k{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--secondary)}
+.stat .k .d{width:8px;height:8px;border-radius:50%}
+.stat .v{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+.stat .s{font-size:12px;color:var(--secondary);margin-top:1px}
+
+/* דונאט */
+.donut-card{background:var(--card);border-radius:var(--r-lg);margin:0 16px;padding:16px;display:flex;align-items:center;gap:18px}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0}
+.dl{display:flex;align-items:center;gap:8px;font-size:14px}
+.dl .d{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dl .nm{flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl .vl{color:var(--secondary);font-weight:600;font-size:13.5px}
+
+/* ---------- מסנן מקטעים (Segmented) ---------- */
+.seg-wrap{margin:14px 16px 12px}
+.seg{display:flex;background:var(--seg-bg);border-radius:10px;padding:2px;position:relative}
+.seg button{flex:1;padding:7px 4px;border-radius:8px;font-size:14px;font-weight:600;color:var(--label);transition:all .18s}
+.seg button.on{background:var(--seg-on);box-shadow:0 2px 6px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.04)}
+.search{display:flex;align-items:center;gap:7px;background:var(--search-bg);border-radius:11px;padding:8px 12px;margin:0 16px 12px;color:var(--secondary)}
+.search input{border:none;outline:none;background:none;flex:1;color:var(--label);font-size:16px}
+.search input::placeholder{color:var(--secondary)}
+
+/* ---------- תזרים ---------- */
+.cf{display:flex;align-items:center;gap:12px;padding:11px 16px;position:relative}
+.cf + .cf::before{content:"";position:absolute;top:0;inset-inline-start:16px;inset-inline-end:0;height:1px;background:var(--sep)}
+.cf .m{width:62px;flex-shrink:0}
+.cf .m b{font-size:14.5px;font-weight:600;display:block}
+.cf .m span{font-size:11px;color:var(--secondary)}
+.cf .bar{flex:1;height:16px;border-radius:6px;background:var(--fill2);overflow:hidden;display:flex}
+.cf .bal{width:76px;text-align:left;font-size:14.5px;font-weight:700;flex-shrink:0}
+
+/* ---------- תובנות ---------- */
+.ins{background:var(--card);border-radius:var(--r-lg);margin:0 16px 10px;padding:15px 16px}
+.ins-h{display:flex;align-items:flex-start;gap:11px;margin-bottom:6px}
+.ins-h .ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;margin-top:1px}
+.ins-h .ico svg{width:17px;height:17px}
+.ins-h .t{font-size:15.5px;font-weight:700;letter-spacing:-.01em;padding-top:4px}
+.ins-b{font-size:14px;line-height:1.5;color:var(--label2)}
+.ins-b b{font-weight:700;color:var(--label)}
+
+/* ---------- טאב־בר ---------- */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;max-width:520px;margin:0 auto;
+  background:var(--tab-bg);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-top:.5px solid var(--tab-border);
+  display:flex;padding:6px 4px calc(4px + var(--safe-b))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;color:var(--secondary)}
+.tab svg{width:26px;height:26px}
+.tab .tl{font-size:10px;font-weight:600;letter-spacing:-.01em}
+.tab.on{color:var(--blue)}
+
+/* ---------- כפתור הוספה ---------- */
+.add-btn{width:34px;height:34px;border-radius:50%;background:var(--fill);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-btn svg{width:18px;height:18px}
+.add-btn:active{opacity:.65}
+
+/* ---------- גיליון תחתון ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:90;animation:fade .2s}
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:91;max-width:520px;margin:0 auto;
+  background:var(--sheet-bg);border-radius:16px 16px 0 0;
+  padding:8px 16px calc(16px + var(--safe-b));max-height:90dvh;overflow-y:auto;
+  animation:up .32s cubic-bezier(.22,1,.36,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--grab);margin:4px auto 10px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 2px}
+.sheet-head h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.sheet-head .cancel{color:var(--blue);font-size:16px;font-weight:500}
+.sheet-head .save{color:var(--blue);font-size:16px;font-weight:700}
+.sheet-head .save:disabled{color:var(--tertiary)}
+.f-grp{background:var(--card2);border-radius:var(--r-md);overflow:hidden;margin-bottom:14px}
+.f-row{display:flex;align-items:center;gap:10px;padding:11px 14px;position:relative;min-height:48px}
+.f-row + .f-row::before{content:"";position:absolute;top:0;inset-inline-start:14px;inset-inline-end:0;height:1px;background:var(--sep)}
+.f-row label{font-size:15.5px;font-weight:500;width:112px;flex-shrink:0;color:var(--label)}
+.f-row input,.f-row select{flex:1;border:none;outline:none;background:none;text-align:start;color:var(--label);min-width:0}
+.f-row input::placeholder{color:var(--tertiary)}
+.f-row select{-webkit-appearance:none;appearance:none;color:var(--blue);font-weight:500}
+.f-note{font-size:12.5px;color:var(--secondary);padding:0 16px 12px;margin-top:-8px}
+.seg.small button{font-size:13.5px;padding:6px 2px}
+.destroy{display:block;width:100%;background:var(--card2);border-radius:var(--r-md);padding:13px;color:var(--red);font-size:16.5px;font-weight:500;text-align:center}
+.destroy:active{background:var(--fill2)}
+
+/* ---------- ריק / קליטה ---------- */
+.empty{text-align:center;padding:44px 30px;color:var(--secondary)}
+.empty svg{width:44px;height:44px;color:var(--tertiary);margin-bottom:10px}
+.empty .et{font-size:16px;font-weight:600;color:var(--label);margin-bottom:4px}
+.empty .es{font-size:14px;line-height:1.45}
+.cta{display:inline-block;margin-top:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:600;padding:10px 22px;border-radius:100px}
+.cta:active{opacity:.8}
+
+.ob{position:fixed;inset:0;z-index:95;background:var(--bg);overflow-y:auto;
+  padding:calc(40px + var(--safe-t)) 24px calc(30px + var(--safe-b));max-width:520px;margin:0 auto}
+.ob-ico{width:76px;height:76px;border-radius:20px;background:linear-gradient(135deg,#0A84FF,#5E5CE6);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 10px 24px rgba(60,90,230,.3)}
+.ob-ico svg{width:40px;height:40px;color:#fff}
+.ob h1{font-size:30px;font-weight:800;text-align:center;letter-spacing:-.02em;margin-bottom:8px}
+.ob .lead{font-size:15.5px;color:var(--secondary);text-align:center;line-height:1.5;margin-bottom:26px}
+.ob-feat{display:flex;gap:13px;align-items:flex-start;margin-bottom:16px;padding:0 6px}
+.ob-feat .ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.ob-feat .ico svg{width:19px;height:19px}
+.ob-feat b{font-size:15px;display:block;margin-bottom:1px}
+.ob-feat p{font-size:13.5px;color:var(--secondary);line-height:1.4}
+.ob .big{display:block;width:100%;background:var(--blue);color:#fff;font-size:17px;font-weight:700;padding:15px;border-radius:14px;margin-top:10px;text-align:center}
+.ob .big:active{opacity:.85}
+
+.toast{position:fixed;top:calc(12px + var(--safe-t));left:50%;transform:translateX(-50%);z-index:100;
+  background:rgba(28,28,30,.92);-webkit-backdrop-filter:blur(10px);color:#fff;padding:9px 18px;border-radius:100px;
+  font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:fade .2s;white-space:nowrap}
+.foot-note{font-size:12.5px;color:var(--secondary);text-align:center;padding:16px 30px 0;line-height:1.5}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="env,react">
+const {useState,useEffect,useMemo,useRef} = React;
+
+/* ===== אייקוני SVG (בהשראת SF Symbols) ===== */
+const I = {
+  house: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.3 9.3V20a1 1 0 0 0 1 1h4.2v-5.6h3v5.6h4.2a1 1 0 0 0 1-1V9.3"/></svg>,
+  list: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.5"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg>,
+  chart: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 20.5h17"/><path d="M4.5 16.5 10 11l3.6 3.4 5.9-6.9"/><path d="M15.5 7.5h4v4"/></svg>,
+  bulb: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 18h5M10.2 21h3.6"/><path d="M12 3a6.3 6.3 0 0 0-3.6 11.5c.7.5 1.1 1.3 1.1 2.1v.4h5v-.4c0-.8.4-1.6 1.1-2.1A6.3 6.3 0 0 0 12 3z"/></svg>,
+  gear: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.98 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.98a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01A1.7 1.7 0 0 0 10.1 3.06V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01c.26.63.87 1.04 1.55 1.08H21a2 2 0 1 1 0 4h-.09c-.68 0-1.29.41-1.51 1.04z"/></svg>,
+  plus: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
+  chev: <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 1 1.5 7l5 6"/></svg>,
+  mag: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.9-4.9"/></svg>,
+  car: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12 6.7 6.9A1.5 1.5 0 0 1 8.1 6h7.8a1.5 1.5 0 0 1 1.4.9L19 12"/><rect x="3.5" y="12" width="17" height="6" rx="1.6"/><circle cx="7.5" cy="15" r=".6" fill="currentColor"/><circle cx="16.5" cy="15" r=".6" fill="currentColor"/><path d="M6 18v1.7M18 18v1.7"/></svg>,
+  heart: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20.3S4 15.2 4 9.6A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 8 2.6c0 5.6-8 10.7-8 10.7z"/></svg>,
+  tv: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="5.5" width="17" height="12" rx="2"/><path d="M9 21h6"/></svg>,
+  home2: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.3 9.3V21h13.4V9.3"/><path d="M9.5 21v-6h5v6"/></svg>,
+  baby: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13.5" r="6.5"/><path d="M12 7V4.5a1.7 1.7 0 0 1 1.7-1.7"/><circle cx="9.7" cy="13" r=".5" fill="currentColor"/><circle cx="14.3" cy="13" r=".5" fill="currentColor"/><path d="M9.8 16.2c1.3 1 3.1 1 4.4 0"/></svg>,
+  party: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="m5.5 11 7.5 7.5L4 21z"/><path d="M13 6.5c1.5-1.5 3-1.5 4.5 0M15.5 3.5v2M19.5 8.5h2M18.5 12.5c1 1 1 2.5 0 3.5"/></svg>,
+  pin: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg>,
+  banknote: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.7v.01M17.5 14.3v.01"/></svg>,
+  bell: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5.5-2 6.5-2 6.5h16s-2-1-2-6.5"/><path d="M10.2 19.5a2 2 0 0 0 3.6 0"/></svg>,
+  scale: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M8 21h8"/><path d="m6 7 12-2M6 7l-2.7 5.5a3 3 0 0 0 5.4 0zM18 5l-2.7 5.5a3 3 0 0 0 5.4 0z"/></svg>,
+  cal: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 2.8V6M16 2.8V6"/></svg>,
+  coffee: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9.5h1.5a2.5 2.5 0 0 1 0 5H17M7.5 2.8v2.4M11.5 2.8v2.4"/></svg>,
+  card: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3 10h18M6.5 14.5h4"/></svg>,
+  person: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>,
+  doc: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>,
+  trash: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M6.5 7l1 13a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4l1-13"/></svg>,
+  wallet: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7.5H5a2 2 0 0 1-2-2 2 2 0 0 1 2-2h13v4"/><path d="M3 5.5v12a2.5 2.5 0 0 0 2.5 2.5H20a1 1 0 0 0 1-1V8.5a1 1 0 0 0-1-1"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor" stroke="none"/></svg>,
+  lock: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>,
+};
+
+/* ===== קטגוריות (פלטת iOS) ===== */
+const CATS = {
+  "רכב ותחבורה":{ic:"car",clr:"#007AFF"},
+  "בריאות וכושר":{ic:"heart",clr:"#34C759"},
+  "מנויים ותקשורת":{ic:"tv",clr:"#AF52DE"},
+  "דיור ומשק בית":{ic:"home2",clr:"#FF9500"},
+  "ילדים וחינוך":{ic:"baby",clr:"#30B0C7"},
+  "בילויים והנאות":{ic:"party",clr:"#FF375F"},
+  "אחר":{ic:"pin",clr:"#8E8E93"},
+};
+const catOf = c => CATS[c] || CATS["אחר"];
+
+const DEFAULT_SETTINGS = {household:"", members:["",""], payMethods:["כרטיס אשראי","העברה בנקאית","הוראת קבע","צ׳ק","מזומן"], onboarded:false};
+let _id = 1; const nid = p => (p||"e") + (_id++) + "_" + Date.now().toString(36);
+
+/* ===== אחסון ===== */
+const LS_KEY = "home_budget_v2";
+const load = () => {
+  try{ const d = JSON.parse(localStorage.getItem(LS_KEY));
+    if(d && d.settings) return {incomes:d.incomes||[],expenses:d.expenses||[],settings:{...DEFAULT_SETTINGS,...d.settings}};
+  }catch(e){}
+  return {incomes:[],expenses:[],settings:{...DEFAULT_SETTINGS}};
+};
+const fmt = n => "₪" + Math.round(n).toLocaleString("he-IL");
+const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+const applies = (e,m) => e.freq==="odd" ? m%2===1 : e.freq==="even" ? m%2===0 : true;
+const monthTotal = (list,m) => list.filter(e=>applies(e,m)).reduce((s,e)=>s+Number(e.amount||0),0);
+
+function Ico({name,bg,size}){
+  return <span className="ico" style={{background:bg, ...(size?{width:size,height:size}:{})}}>{I[name]||I.pin}</span>;
+}
+
+function Donut({data,size=116,label}){
+  const total = data.reduce((s,d)=>s+d.v,0) || 1;
+  const R=size/2, r=R-11, C=2*Math.PI*r;
+  let acc=0;
+  return (
+    <svg className="donut" width={size} height={size} viewBox={"0 0 "+size+" "+size}>
+      <circle cx={R} cy={R} r={r} fill="none" style={{stroke:"var(--donut-track)"}} strokeWidth="14"/>
+      {data.map((d,i)=>{
+        const frac=d.v/total, off=C*(1-acc), dash=(C*frac)+" "+(C*(1-frac));
+        acc+=frac;
+        return <circle key={i} cx={R} cy={R} r={r} fill="none" stroke={d.c} strokeWidth="14"
+          strokeDasharray={dash} strokeDashoffset={off} transform={"rotate(-90 "+R+" "+R+")"}/>;
+      })}
+      <text x={R} y={R-3} textAnchor="middle" fontSize="16" fontWeight="700" style={{fill:"var(--label)"}} className="num">{fmt(total)}</text>
+      <text x={R} y={R+14} textAnchor="middle" fontSize="10" style={{fill:"var(--secondary)"}}>{label||"סה״כ החודש"}</text>
+    </svg>
+  );
+}
+/* ===== אונבורדינג ===== */
+function Onboarding({onDone}){
+  const [name1,setName1] = useState("");
+  const [name2,setName2] = useState("");
+  const [household,setHousehold] = useState("");
+  return (
+    <div className="ob">
+      <div className="ob-ico">{I.wallet}</div>
+      <h1>כלכלת הבית</h1>
+      <p className="lead">רואים לאן הולך הכסף, מתכננים תזרים שנה קדימה,<br/>ומקבלים המלצות חכמות לשיפור המאזן.</p>
+      <div className="ob-feat"><span className="ico" style={{background:"var(--blue)"}}>{I.chart}</span><div><b>תזרים אוטומטי</b><p>חישוב חודשי כולל חיובים דו־חודשיים כמו מים וחשמל</p></div></div>
+      <div className="ob-feat"><span className="ico" style={{background:"var(--orange)"}}>{I.bulb}</span><div><b>תובנות לחיסכון</b><p>התראות תוקף ביטוחים, בדיקת מנויים והמלצות מותאמות</p></div></div>
+      <div className="ob-feat"><span className="ico" style={{background:"var(--green)"}}>{I.lock}</span><div><b>פרטי לגמרי</b><p>הנתונים נשמרים במכשיר שלכם בלבד — לא נשלחים לשום מקום</p></div></div>
+      <div className="grp-title" style={{padding:"18px 16px 7px"}}>קצת עליכם (לא חובה)</div>
+      <div className="f-grp">
+        <div className="f-row"><label>שם משק הבית</label><input value={household} onChange={e=>setHousehold(e.target.value)} placeholder="למשל: משפחת לוי"/></div>
+        <div className="f-row"><label>שם ראשון</label><input value={name1} onChange={e=>setName1(e.target.value)} placeholder="שם בן/בת הזוג"/></div>
+        <div className="f-row"><label>שם שני</label><input value={name2} onChange={e=>setName2(e.target.value)} placeholder="שם בן/בת הזוג"/></div>
+      </div>
+      <button className="big" onClick={()=>onDone({household:household.trim(),members:[name1.trim(),name2.trim()].filter(Boolean)})}>מתחילים</button>
+      <p className="foot-note">אפשר לשנות הכול אחר כך במסך ההגדרות</p>
+    </div>
+  );
+}
+
+/* ===== גיליון הוצאה ===== */
+function ExpenseSheet({item,payMethods,onSave,onDelete,onClose}){
+  const isNew = !item.id;
+  const [f,setF] = useState({
+    type:item.type||"fixed", name:item.name||"", company:item.company||"",
+    amount:item.amount||"", cat:item.cat||"דיור ומשק בית",
+    pay:item.pay||payMethods[0]||"", freq:item.freq||"m", expiry:item.expiry||"",
+  });
+  const set=(k,v)=>setF(p=>({...p,[k]:v}));
+  const valid = f.name.trim() && Number(f.amount)>0;
+  return (
+    <React.Fragment>
+      <div className="sheet-bg" onClick={onClose}/>
+      <div className="sheet">
+        <div className="grab"/>
+        <div className="sheet-head">
+          <button className="cancel" onClick={onClose}>ביטול</button>
+          <h3>{isNew?"הוצאה חדשה":"עריכת הוצאה"}</h3>
+          <button className="save" disabled={!valid} onClick={()=>onSave({...item,...f,amount:Number(f.amount)})}>שמירה</button>
+        </div>
+        <div className="seg-wrap" style={{margin:"0 0 14px"}}>
+          <div className="seg small">
+            <button className={f.type==="fixed"?"on":""} onClick={()=>set("type","fixed")}>הוצאה קבועה</button>
+            <button className={f.type==="var"?"on":""} onClick={()=>set("type","var")}>הוצאה משתנה</button>
+          </div>
+        </div>
+        <div className="f-grp">
+          <div className="f-row"><label>שם</label><input value={f.name} onChange={e=>set("name",e.target.value)} placeholder="למשל: ביטוח רכב"/></div>
+          <div className="f-row"><label>ספק</label><input value={f.company} onChange={e=>set("company",e.target.value)} placeholder="שם החברה (לא חובה)"/></div>
+          <div className="f-row"><label>סכום חודשי</label><input type="number" inputMode="decimal" value={f.amount} onChange={e=>set("amount",e.target.value)} placeholder="₪0"/></div>
+        </div>
+        <div className="f-grp">
+          <div className="f-row"><label>קטגוריה</label>
+            <select value={f.cat} onChange={e=>set("cat",e.target.value)}>{Object.keys(CATS).map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+          <div className="f-row"><label>אמצעי תשלום</label>
+            <select value={f.pay} onChange={e=>set("pay",e.target.value)}>{payMethods.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+        </div>
+        <div className="grp-title" style={{padding:"0 16px 7px"}}>תדירות חיוב</div>
+        <div className="f-grp" style={{padding:"8px"}}>
+          <div className="seg small">
+            <button className={f.freq==="m"?"on":""} onClick={()=>set("freq","m")}>כל חודש</button>
+            <button className={f.freq==="odd"?"on":""} onClick={()=>set("freq","odd")}>חודשים אי־זוגיים</button>
+            <button className={f.freq==="even"?"on":""} onClick={()=>set("freq","even")}>חודשים זוגיים</button>
+          </div>
+        </div>
+        <p className="f-note" style={{padding:"6px 8px 12px"}}>דו־חודשי מתאים לחשבונות כמו מים וחשמל — המערכת תחשב אותם רק בחודשים המתאימים בתזרים.</p>
+        <div className="f-grp">
+          <div className="f-row"><label>תוקף פוליסה</label><input type="date" value={f.expiry} onChange={e=>set("expiry",e.target.value)}/></div>
+        </div>
+        <p className="f-note">לביטוחים — נזכיר לערוך סקר שוק לקראת סיום התוקף.</p>
+        {!isNew && <button className="destroy" onClick={()=>onDelete(item.id)}>מחיקת ההוצאה</button>}
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* ===== גיליון הכנסה ===== */
+function IncomeSheet({item,onSave,onDelete,onClose}){
+  const isNew = !item.id;
+  const [f,setF] = useState({name:item.name||"",amount:item.amount||""});
+  const valid = f.name.trim() && Number(f.amount)>0;
+  return (
+    <React.Fragment>
+      <div className="sheet-bg" onClick={onClose}/>
+      <div className="sheet">
+        <div className="grab"/>
+        <div className="sheet-head">
+          <button className="cancel" onClick={onClose}>ביטול</button>
+          <h3>{isNew?"הכנסה חדשה":"עריכת הכנסה"}</h3>
+          <button className="save" disabled={!valid} onClick={()=>onSave({...item,...f,amount:Number(f.amount)})}>שמירה</button>
+        </div>
+        <div className="f-grp">
+          <div className="f-row"><label>שם</label><input value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))} placeholder="למשל: משכורת, עסק, קצבה"/></div>
+          <div className="f-row"><label>סכום חודשי</label><input type="number" inputMode="decimal" value={f.amount} onChange={e=>setF(p=>({...p,amount:e.target.value}))} placeholder="₪0"/></div>
+        </div>
+        {!isNew && <button className="destroy" onClick={()=>onDelete(item.id)}>מחיקת ההכנסה</button>}
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* ===== גיליון פרטים אישיים ===== */
+function ProfileSheet({settings,onSave,onClose}){
+  const [household,setHousehold] = useState(settings.household||"");
+  const [m1,setM1] = useState(settings.members[0]||"");
+  const [m2,setM2] = useState(settings.members[1]||"");
+  return (
+    <React.Fragment>
+      <div className="sheet-bg" onClick={onClose}/>
+      <div className="sheet">
+        <div className="grab"/>
+        <div className="sheet-head">
+          <button className="cancel" onClick={onClose}>ביטול</button>
+          <h3>פרטים אישיים</h3>
+          <button className="save" onClick={()=>onSave({household:household.trim(),members:[m1.trim(),m2.trim()].filter(Boolean)})}>שמירה</button>
+        </div>
+        <div className="f-grp">
+          <div className="f-row"><label>שם משק הבית</label><input value={household} onChange={e=>setHousehold(e.target.value)} placeholder="למשל: משפחת לוי"/></div>
+          <div className="f-row"><label>שם ראשון</label><input value={m1} onChange={e=>setM1(e.target.value)} placeholder="שם בן/בת הזוג"/></div>
+          <div className="f-row"><label>שם שני</label><input value={m2} onChange={e=>setM2(e.target.value)} placeholder="שם בן/בת הזוג"/></div>
+        </div>
+        <p className="f-note">השמות מופיעים בכותרת ובברכות — לא נשלחים לשום מקום.</p>
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* ===== גיליון אמצעי תשלום ===== */
+function PaySheet({payMethods,onSave,onClose}){
+  const [list,setList] = useState(payMethods.slice());
+  const [newPm,setNewPm] = useState("");
+  const add = () => { const v=newPm.trim(); if(v && !list.includes(v)){ setList([...list,v]); setNewPm(""); } };
+  return (
+    <React.Fragment>
+      <div className="sheet-bg" onClick={onClose}/>
+      <div className="sheet">
+        <div className="grab"/>
+        <div className="sheet-head">
+          <button className="cancel" onClick={onClose}>ביטול</button>
+          <h3>אמצעי תשלום</h3>
+          <button className="save" disabled={!list.length} onClick={()=>onSave(list)}>שמירה</button>
+        </div>
+        <div className="f-grp">
+          {list.map((p,i)=>(
+            <div className="f-row" key={i}>
+              <span style={{flex:1,fontWeight:500}}>{p}</span>
+              <button style={{color:"var(--red)"}} onClick={()=>setList(list.filter((_,j)=>j!==i))}>{I.trash && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M4 7h16M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M6.5 7l1 13a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4l1-13"/></svg>}</button>
+            </div>
+          ))}
+          <div className="f-row">
+            <input value={newPm} onChange={e=>setNewPm(e.target.value)} placeholder="למשל: ויזה 2047 — שם" onKeyDown={e=>e.key==="Enter"&&add()}/>
+            <button className="add-btn" onClick={add}>{I.plus}</button>
+          </div>
+        </div>
+        <p className="f-note">מומלץ להוסיף את הכרטיסים האמיתיים שלכם (סוג + 4 ספרות + של מי) — כך קל לעקוב על איזה כרטיס יושב כל חיוב.</p>
+      </div>
+    </React.Fragment>
+  );
+}
+/* ===== מסך הבית ===== */
+function Dashboard({data,month,setMonth,goTab,onAdd}){
+  const inc = data.incomes.reduce((s,i)=>s+Number(i.amount||0),0);
+  const fx = monthTotal(data.expenses.filter(e=>e.type==="fixed"),month);
+  const vr = monthTotal(data.expenses.filter(e=>e.type==="var"),month);
+  const left = inc-fx-vr;
+  const hasData = data.incomes.length>0 || data.expenses.length>0;
+  const byCat = useMemo(()=>{
+    const m={};
+    data.expenses.filter(e=>applies(e,month)).forEach(e=>{m[e.cat]=(m[e.cat]||0)+Number(e.amount||0)});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({k,v,c:catOf(k).clr}));
+  },[data,month]);
+  const base = Math.max(inc,fx+vr)||1;
+  const w = v => Math.max(1.5,v/base*100)+"%";
+  const hh = data.settings.household || (data.settings.members.length ? "הבית של "+data.settings.members.join(" ו") : "");
+  return (
+    <div className="screen">
+      <div className="nav">
+        {hh && <div className="sub">{hh}</div>}
+        <h1>כלכלת הבית</h1>
+      </div>
+
+      {!hasData ? (
+        <div className="grp" style={{marginTop:12}}>
+          <div className="empty">
+            {I.wallet}
+            <div className="et">מתחילים לראות את התמונה</div>
+            <div className="es">הוסיפו את ההכנסות וההוצאות הקבועות שלכם —<br/>המערכת תבנה תזרים ותובנות באופן אוטומטי.</div>
+            <button className="cta" onClick={onAdd}>הוספת הוצאה ראשונה</button>
+          </div>
+        </div>
+      ) : (
+      <React.Fragment>
+        <div className={"hero-card"+(left<0?" neg":"")}>
+          <div className="hc-top">
+            <span className="hc-label">{left>=0?"נשאר החודש":"חריגה החודש"}</span>
+            <div className="hc-month">
+              <button onClick={()=>setMonth(m=>m===12?1:m+1)}>‹</button>
+              <span>{MONTHS[month-1]}</span>
+              <button onClick={()=>setMonth(m=>m===1?12:m-1)}>›</button>
+            </div>
+          </div>
+          <div className="hc-amt num">{fmt(Math.abs(left))}</div>
+          <div className="hc-sub num">הכנסות {fmt(inc)} · הוצאות {fmt(fx+vr)}</div>
+          <div className="flow-bar">
+            <div style={{width:w(fx),background:"rgba(255,255,255,.95)"}}/>
+            <div style={{width:w(vr),background:"rgba(255,255,255,.55)"}}/>
+          </div>
+          <div className="flow-legend">
+            <span className="fl"><span className="d" style={{background:"rgba(255,255,255,.95)"}}/>קבועות <b className="num">{fmt(fx)}</b></span>
+            <span className="fl"><span className="d" style={{background:"rgba(255,255,255,.55)"}}/>משתנות <b className="num">{fmt(vr)}</b></span>
+          </div>
+        </div>
+
+        <div className="grid2">
+          <div className="stat"><div className="k"><span className="d" style={{background:"var(--green)"}}/>הכנסות</div>
+            <div className="v num">{fmt(inc)}</div><div className="s">{data.incomes.length} מקורות</div></div>
+          <div className="stat"><div className="k"><span className="d" style={{background:"var(--red)"}}/>הוצאות {MONTHS[month-1]}</div>
+            <div className="v num">{fmt(fx+vr)}</div><div className="s">{inc>0?Math.round((fx+vr)/inc*100)+"% מההכנסה":""}</div></div>
+        </div>
+
+        {byCat.length>0 && <React.Fragment>
+          <div className="grp-row-head"><span className="grp-title">לאן הולך הכסף</span><button className="grp-link" onClick={()=>goTab("exp")}>לכל ההוצאות</button></div>
+          <div className="donut-card">
+            <Donut data={byCat.map(d=>({v:d.v,c:d.c}))}/>
+            <div className="donut-legend">
+              {byCat.slice(0,5).map(d=>(
+                <div className="dl" key={d.k}><span className="d" style={{background:d.c}}/><span className="nm">{d.k}</span><span className="vl num">{fmt(d.v)}</span></div>
+              ))}
+            </div>
+          </div>
+        </React.Fragment>}
+
+        {data.incomes.length>0 && <React.Fragment>
+          <div className="grp-title">הכנסות</div>
+          <div className="grp">
+            {data.incomes.map(i=>(
+              <div className="row" key={i.id}>
+                <Ico name="banknote" bg="var(--green)"/>
+                <div className="mid"><div className="t">{i.name}</div></div>
+                <div className="v num" style={{color:"var(--green)"}}>{fmt(i.amount)}</div>
+              </div>
+            ))}
+          </div>
+        </React.Fragment>}
+      </React.Fragment>
+      )}
+      <p className="foot-note">{I.lock && ""}הנתונים נשמרים במכשיר זה בלבד</p>
+    </div>
+  );
+}
+
+/* ===== מסך הוצאות ===== */
+function ExpensesScreen({data,month,tab,setTab,openEdit,openEditInc,onAdd}){
+  const [q,setQ] = useState("");
+  const list = data.expenses
+    .filter(e=>tab==="inc"?false:e.type===(tab==="fixed"?"fixed":"var"))
+    .filter(e=>!q||(e.name+" "+(e.company||"")+" "+(e.pay||"")).includes(q))
+    .sort((a,b)=>b.amount-a.amount);
+  const total = list.filter(e=>applies(e,month)).reduce((s,e)=>s+Number(e.amount),0);
+  const incTotal = data.incomes.reduce((s,i)=>s+Number(i.amount||0),0);
+  return (
+    <div className="screen">
+      <div className="nav">
+        <div className="nav-row">
+          <div><div className="sub num">{tab==="inc"?fmt(incTotal)+" בחודש":fmt(total)+" ב"+MONTHS[month-1]}</div>
+          <h1>{tab==="inc"?"הכנסות":"הוצאות"}</h1></div>
+          <button className="add-btn" onClick={onAdd} aria-label="הוספה">{I.plus}</button>
+        </div>
+      </div>
+      <div className="seg-wrap">
+        <div className="seg">
+          <button className={tab==="fixed"?"on":""} onClick={()=>setTab("fixed")}>קבועות</button>
+          <button className={tab==="var"?"on":""} onClick={()=>setTab("var")}>משתנות</button>
+          <button className={tab==="inc"?"on":""} onClick={()=>setTab("inc")}>הכנסות</button>
+        </div>
+      </div>
+      {tab!=="inc" &&
+        <div className="search">{I.mag}<input placeholder="חיפוש" value={q} onChange={e=>setQ(e.target.value)}/>{q&&<button onClick={()=>setQ("")}>✕</button>}</div>}
+      <div className="grp">
+        {tab==="inc" ? (
+          data.incomes.length===0 ? (
+            <div className="empty">{I.banknote}<div className="et">אין הכנסות עדיין</div><div className="es">הוסיפו משכורות, הכנסות מעסק וקצבאות</div><button className="cta" onClick={onAdd}>הוספת הכנסה</button></div>
+          ) : data.incomes.map(i=>(
+            <div className="row" key={i.id} onClick={()=>openEditInc(i)}>
+              <Ico name="banknote" bg="var(--green)"/>
+              <div className="mid"><div className="t">{i.name}</div></div>
+              <div className="v num" style={{color:"var(--green)"}}>{fmt(i.amount)}</div>
+              <span className="chev">{I.chev}</span>
+            </div>
+          ))
+        ) : list.length===0 ? (
+          <div className="empty">{I.list}<div className="et">{q?"אין תוצאות":"הרשימה ריקה"}</div>
+            <div className="es">{q?"נסו חיפוש אחר":"הוסיפו את ההוצאות ה"+(tab==="fixed"?"קבועות (שכירות, ביטוחים, מנויים)":"משתנות (סופר, דלק, חשמל)")}</div>
+            {!q&&<button className="cta" onClick={onAdd}>הוספת הוצאה</button>}</div>
+        ) : list.map(e=>{
+          const c = catOf(e.cat), inMonth = applies(e,month);
+          return (
+            <div className="row" key={e.id} onClick={()=>openEdit(e)} style={{opacity:inMonth?1:.45}}>
+              <Ico name={c.ic} bg={c.clr}/>
+              <div className="mid">
+                <div className="t">{e.name}{e.freq!=="m"&&<span className="tag">{e.freq==="odd"?"אי־זוגי":"זוגי"}</span>}</div>
+                <div className="s">{[e.company,e.pay].filter(Boolean).join(" · ")||e.cat}</div>
+              </div>
+              <div className="v num">{fmt(e.amount)}</div>
+              <span className="chev">{I.chev}</span>
+            </div>
+          );
+        })}
+      </div>
+      {tab!=="inc"&&list.length>0&&<p className="foot-note">שורות שקופות למחצה אינן מחויבות ב{MONTHS[month-1]} (חיוב דו־חודשי)</p>}
+    </div>
+  );
+}
+/* ===== מסך תזרים ===== */
+function CashflowScreen({data}){
+  const inc = data.incomes.reduce((s,i)=>s+Number(i.amount||0),0);
+  const hasData = data.expenses.length>0 || data.incomes.length>0;
+  const nowM = new Date().getMonth()+1;
+  const rows = Array.from({length:12},(_,i)=>{
+    const m = ((nowM-1+i)%12)+1;
+    const fx = monthTotal(data.expenses.filter(e=>e.type==="fixed"),m);
+    const vr = monthTotal(data.expenses.filter(e=>e.type==="var"),m);
+    return {m,fx,vr,bal:inc-fx-vr};
+  });
+  let acc=0; const withAcc = rows.map(r=>{acc+=r.bal;return {...r,acc}});
+  const maxOut = Math.max(...rows.map(r=>r.fx+r.vr),inc,1);
+  const yearSave = rows.reduce((s,r)=>s+r.bal,0);
+  return (
+    <div className="screen">
+      <div className="nav">
+        <div className="sub">12 החודשים הקרובים</div>
+        <h1>תזרים</h1>
+      </div>
+      {!hasData ? (
+        <div className="grp" style={{marginTop:12}}><div className="empty">{I.chart}
+          <div className="et">אין עדיין נתונים לתזרים</div>
+          <div className="es">הוסיפו הכנסות והוצאות — התחזית תיבנה אוטומטית</div></div></div>
+      ) : (
+      <React.Fragment>
+        <div className={"hero-card"+(yearSave<0?" neg":"")} style={{padding:"18px 20px"}}>
+          <span className="hc-label">{yearSave>=0?"חיסכון צפוי בשנה":"גירעון צפוי בשנה"}</span>
+          <div className="hc-amt num" style={{fontSize:36}}>{fmt(Math.abs(yearSave))}</div>
+          <div className="hc-sub num">ממוצע {fmt(Math.abs(yearSave)/12)} בחודש</div>
+        </div>
+        <div className="grp-title">חודש אחרי חודש</div>
+        <div className="grp">
+          {withAcc.map(r=>(
+            <div className="cf" key={r.m}>
+              <div className="m"><b>{MONTHS[r.m-1]}</b><span className="num">מצטבר {fmt(r.acc)}</span></div>
+              <div className="bar">
+                <div style={{width:(r.fx/maxOut*100)+"%",background:"var(--blue)"}}/>
+                <div style={{width:(r.vr/maxOut*100)+"%",background:"#8ECBFF"}}/>
+              </div>
+              <div className="bal num" style={{color:r.bal>=0?"var(--green)":"var(--red)"}}>{(r.bal>=0?"+":"−")+fmt(Math.abs(r.bal)).slice(1)} ₪</div>
+            </div>
+          ))}
+        </div>
+        <div className="grid2">
+          {(()=>{const b=withAcc.reduce((a,r)=>r.bal>a.bal?r:a);
+            return <div className="stat"><div className="k"><span className="d" style={{background:"var(--green)"}}/>החודש החזק</div>
+              <div className="v num">{fmt(b.bal)}</div><div className="s">{MONTHS[b.m-1]}</div></div>})()}
+          {(()=>{const b=withAcc.reduce((a,r)=>r.bal<a.bal?r:a);
+            return <div className="stat"><div className="k"><span className="d" style={{background:"var(--red)"}}/>החודש הכבד</div>
+              <div className="v num">{fmt(b.bal)}</div><div className="s">{MONTHS[b.m-1]}</div></div>})()}
+        </div>
+        <p className="foot-note">התזרים מחשב אוטומטית חיובים דו־חודשיים — לכן היתרה משתנה בין החודשים</p>
+      </React.Fragment>
+      )}
+    </div>
+  );
+}
+
+/* ===== מנוע תובנות ===== */
+function buildInsights(data){
+  const out=[];
+  const inc = data.incomes.reduce((s,i)=>s+Number(i.amount||0),0);
+  const m = new Date().getMonth()+1;
+  const fx = monthTotal(data.expenses.filter(e=>e.type==="fixed"),m);
+  const vr = monthTotal(data.expenses.filter(e=>e.type==="var"),m);
+  const left = inc-fx-vr;
+  const today = new Date();
+
+  if(data.expenses.length===0 && data.incomes.length===0){
+    out.push({ic:"bulb",clr:"var(--orange)",t:"אי אפשר לנהל מה שלא רואים",
+      b:<span>הצעד הראשון לשליטה הוא מיפוי: פתחו את פירוט כרטיסי האשראי וחשבון הבנק, והזינו את ההוצאות הקבועות והמשתנות. ברגע שהמספרים מול העיניים — הכול מתחיל לעשות סדר.</span>});
+    out.push({ic:"cal",clr:"var(--teal)",t:"10 דקות בשבוע",
+      b:<span>קבעו תזכורת שבועית קצרה לעדכון המערכת. זה הרגל קטן שמחזיר שליטה גדולה — ומונע דאגות ומינוס מיותר.</span>});
+    return out;
+  }
+
+  // תוקפי ביטוחים
+  data.expenses.filter(e=>e.expiry).forEach(e=>{
+    const d = new Date(e.expiry+"T00:00:00");
+    const days = Math.ceil((d-today)/86400000);
+    if(days<=90){
+      out.push({ic:"bell",clr:days<=30?"var(--red)":"var(--orange)",
+        t:e.name+" — "+(days<0?"התוקף פג":"התוקף מסתיים בעוד "+days+" ימים"),
+        b:<span>הפוליסה{e.company?" מול "+e.company:""} ({fmt(e.amount)} בחודש) מסתיימת ב־{d.toLocaleDateString("he-IL")}. זה הרגע לבקש הצעות מ־2–3 חברות מתחרות — חיסכון ממוצע בביטוחים: מאות עד אלפי שקלים בשנה.</span>});
+    }
+  });
+
+  // מאזן + כלל חצי-חצי
+  if(inc>0 && left>0){
+    out.push({ic:"scale",clr:"var(--green)",t:"נשארו "+fmt(left)+" — כלל החצי־חצי",
+      b:<span>חלקו את היתרה לשניים: <b>{fmt(left/2)} לבילויים והנאות עכשיו</b>, ו־<b>{fmt(left/2)} לחיסכון ומטרות עתידיות</b>. חיסכון בלי ליהנות לא מחזיק — האיזון הוא הסוד. בקצב הזה: כ־<b>{fmt(left/2*12)}</b> חיסכון בשנה.</span>});
+  } else if(inc>0 && left<0){
+    out.push({ic:"bell",clr:"var(--red)",t:"החודש בחריגה של "+fmt(Math.abs(left)),
+      b:<span>ההוצאות עוברות את ההכנסות. התחילו מהקבועות הגדולות — שם החיסכון המשמעותי: ביטוחים, תקשורת, חשמל והלוואות.</span>});
+  }
+
+  // דיור
+  const housing = data.expenses.filter(e=>applies(e,m)&&e.cat==="דיור ומשק בית").reduce((s,e)=>s+Number(e.amount),0);
+  if(inc>0 && housing/inc>0.35){
+    out.push({ic:"home2",clr:"var(--orange)",t:"דיור ומשק בית — "+Math.round(housing/inc*100)+"% מההכנסה",
+      b:<span>זה הנתח הגדול ביותר ({fmt(housing)}). שווה לבדוק פעם בשנה: מעבר לספק חשמל פרטי (הנחה של 5–10%), חבילת תקשורת, וביטוח הדירה.</span>});
+  }
+
+  // הלוואות
+  const loans = data.expenses.filter(e=>/הלווא|משכנתא/.test(e.name));
+  if(loans.length){
+    const lt = loans.reduce((s,e)=>s+Number(e.amount),0);
+    out.push({ic:"card",clr:"var(--indigo)",t:"החזרי הלוואות: "+fmt(lt)+" בחודש — "+fmt(lt*12)+" בשנה",
+      b:<span>לא כל הלוואה רעה, אבל כל ריבית גבוהה כן. בדקו: באיזו ריבית? האם אפשר למחזר בתנאים טובים יותר? איחוד הלוואות קטנות לאחת בריבית נמוכה מפשט את הניהול ומוריד את ההחזר.</span>});
+  }
+
+  // מנויים — אפקט הקפה
+  const subs = data.expenses.filter(e=>e.cat==="מנויים ותקשורת");
+  if(subs.length){
+    const st = subs.reduce((s,e)=>s+Number(e.amount),0);
+    out.push({ic:"coffee",clr:"var(--purple)",t:"אפקט הקפה: מנויים ותקשורת = "+fmt(st*12)+" בשנה",
+      b:<span>{fmt(st)} בחודש נראה כלום — אבל זה <b>{fmt(st*12)} בשנה</b>. עברו על כל מנוי ושאלו: השתמשנו בו החודש? אם לא — לבטל בלי רגשות אשם.</span>});
+  }
+
+  // ביטוחי בריאות — הר הביטוח
+  if(data.expenses.some(e=>e.cat==="בריאות וכושר"&&/ביטוח|סיעוד/.test(e.name))){
+    out.push({ic:"heart",clr:"var(--mint)",t:"בדיקת כפל ביטוחים",
+      b:<span>כפל ביטוחי בריאות הוא דליפה נפוצה. בדקו בחינם באתר <b>״הר הביטוח״</b> של רשות שוק ההון אם יש כיסוי כפול בין הביטוחים הפרטיים לשב״ן של הקופה — משפחות רבות מגלות שם מאות שקלים בשנה.</span>});
+  }
+
+  // סקר שוק שנתי
+  out.push({ic:"cal",clr:"var(--teal)",t:"יום סקר השוק השנתי",
+    b:<span>קבעו יום אחד בשנה לבדיקת כל הספקים: ביטוחים, סלולר ואינטרנט, חשמל, בנק. יום אחד שחוסך אלפים. ובשוטף — <b>10 דקות בשבוע</b> של עדכון שוות שקט לכל שאר השבוע.</span>});
+
+  return out;
+}
+
+function InsightsScreen({data}){
+  const ins = useMemo(()=>buildInsights(data),[data]);
+  return (
+    <div className="screen">
+      <div className="nav">
+        <div className="sub">חיסכון חכם — בלי לוותר על איכות חיים</div>
+        <h1>תובנות</h1>
+      </div>
+      <div style={{height:12}}/>
+      {ins.map((x,i)=>(
+        <div className="ins" key={i}>
+          <div className="ins-h"><Ico name={x.ic} bg={x.clr} size={30}/><span className="t">{x.t}</span></div>
+          <div className="ins-b">{x.b}</div>
+        </div>
+      ))}
+      <p className="foot-note">״כל שקל שחסכתם הוא לא רק כסף — הוא ביטחון, חופש ושקט נפשי.״</p>
+    </div>
+  );
+}
+/* ===== מסך הגדרות ===== */
+function SettingsScreen({data,openProfile,openPay,onExport,onImport,onReset,onTheme}){
+  const s = data.settings;
+  const fileRef = useRef(null);
+  return (
+    <div className="screen">
+      <div className="nav"><div className="sub">התאמה אישית וניהול נתונים</div><h1>הגדרות</h1></div>
+
+      <div className="grp-title">פרופיל</div>
+      <div className="grp">
+        <div className="row" onClick={openProfile}>
+          <Ico name="person" bg="var(--blue)"/>
+          <div className="mid"><div className="t">פרטים אישיים</div>
+            <div className="s">{s.household||s.members.join(", ")||"שם משק הבית ובני הבית"}</div></div>
+          <span className="chev">{I.chev}</span>
+        </div>
+        <div className="row" onClick={openPay}>
+          <Ico name="card" bg="var(--indigo)"/>
+          <div className="mid"><div className="t">אמצעי תשלום</div><div className="s">{s.payMethods.length} אמצעים מוגדרים</div></div>
+          <span className="chev">{I.chev}</span>
+        </div>
+      </div>
+
+      <div className="grp-title">מראה</div>
+      <div className="grp" style={{padding:"8px"}}>
+        <div className="seg">
+          {[["auto","אוטומטי"],["light","בהיר"],["dark","כהה"]].map(([v,l])=>(
+            <button key={v} className={(s.theme||"auto")===v?"on":""} onClick={()=>onTheme(v)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grp-title">הנתונים שלי</div>
+      <div className="grp">
+        <div className="row" onClick={onExport}>
+          <Ico name="doc" bg="var(--teal)"/>
+          <div className="mid"><div className="t">ייצוא גיבוי</div><div className="s">שמירת קובץ JSON עם כל הנתונים</div></div>
+          <span className="chev">{I.chev}</span>
+        </div>
+        <div className="row" onClick={()=>fileRef.current&&fileRef.current.click()}>
+          <Ico name="doc" bg="var(--orange)"/>
+          <div className="mid"><div className="t">ייבוא גיבוי</div><div className="s">טעינת קובץ שיוצא מהמערכת</div></div>
+          <span className="chev">{I.chev}</span>
+          <input ref={fileRef} type="file" accept="application/json" style={{display:"none"}}
+            onChange={e=>{const f=e.target.files[0]; if(f) onImport(f); e.target.value="";}}/>
+        </div>
+        <div className="row" onClick={onReset}>
+          <Ico name="trash" bg="var(--red)"/>
+          <div className="mid"><div className="t" style={{color:"var(--red)"}}>איפוס כל הנתונים</div><div className="s">מחיקה לצמיתות מהמכשיר</div></div>
+        </div>
+      </div>
+
+      <div className="grp-title">אודות</div>
+      <div className="grp">
+        <div className="row no-ico"><div className="mid"><div className="t">פרטיות</div>
+          <div className="s" style={{whiteSpace:"normal"}}>כל הנתונים נשמרים במכשיר זה בלבד (localStorage) ואינם נשלחים לשום שרת.</div></div></div>
+        <div className="row no-ico"><div className="mid"><div className="t">גרסה</div></div><div className="v" style={{color:"var(--secondary)",fontWeight:400}}>2.0</div></div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== אפליקציה ===== */
+function App(){
+  const [data,setData] = useState(load);
+  const [tab,setTab] = useState("home");
+  const [expTab,setExpTab] = useState("fixed");
+  const [month,setMonth] = useState(new Date().getMonth()+1);
+  const [sheet,setSheet] = useState(null);
+  const [toast,setToast] = useState("");
+  const toastT = useRef(null);
+
+  useEffect(()=>{ localStorage.setItem(LS_KEY, JSON.stringify(data)); },[data]);
+  useEffect(()=>{
+    const t = data.settings.theme||"auto";
+    if(t==="auto") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = t;
+  },[data.settings.theme]);
+  const notify = t => { setToast(t); clearTimeout(toastT.current); toastT.current=setTimeout(()=>setToast(""),1900); };
+
+  const saveExp = it => { setData(d=>({...d,expenses:d.expenses.some(e=>e.id===it.id)?d.expenses.map(e=>e.id===it.id?it:e):[...d.expenses,{...it,id:nid("e")}]})); setSheet(null); notify("ההוצאה נשמרה"); };
+  const delExp = id => { setData(d=>({...d,expenses:d.expenses.filter(e=>e.id!==id)})); setSheet(null); notify("ההוצאה נמחקה"); };
+  const saveInc = it => { setData(d=>({...d,incomes:d.incomes.some(i=>i.id===it.id)?d.incomes.map(i=>i.id===it.id?it:i):[...d.incomes,{...it,id:nid("i")}]})); setSheet(null); notify("ההכנסה נשמרה"); };
+  const delInc = id => { setData(d=>({...d,incomes:d.incomes.filter(i=>i.id!==id)})); setSheet(null); notify("ההכנסה נמחקה"); };
+  const saveSettings = patch => { setData(d=>({...d,settings:{...d.settings,...patch}})); setSheet(null); notify("ההגדרות נשמרו"); };
+
+  const onExport = () => {
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "כלכלת-הבית-גיבוי-"+new Date().toISOString().slice(0,10)+".json";
+    a.click(); URL.revokeObjectURL(a.href);
+    notify("הגיבוי הורד");
+  };
+  const onImport = file => {
+    const r = new FileReader();
+    r.onload = () => {
+      try{ const d = JSON.parse(r.result);
+        if(!d||!Array.isArray(d.expenses)||!Array.isArray(d.incomes)) throw 0;
+        setData({incomes:d.incomes,expenses:d.expenses,settings:{...DEFAULT_SETTINGS,...(d.settings||{}),onboarded:true}});
+        notify("הנתונים נטענו");
+      }catch(e){ notify("הקובץ אינו גיבוי תקין"); }
+    };
+    r.readAsText(file);
+  };
+  const onReset = () => {
+    if(window.confirm("לאפס את כל הנתונים? הפעולה אינה הפיכה.")){
+      setData({incomes:[],expenses:[],settings:{...DEFAULT_SETTINGS,onboarded:true}});
+      notify("הנתונים אופסו");
+    }
+  };
+
+  const addFromCurrent = () => {
+    if(tab==="exp"&&expTab==="inc") setSheet({k:"inc",item:{}});
+    else setSheet({k:"exp",item:{type:tab==="exp"&&expTab==="var"?"var":"fixed"}});
+  };
+  const goTab = t => { setTab(t); window.scrollTo(0,0); };
+
+  if(!data.settings.onboarded){
+    return <Onboarding onDone={p=>setData(d=>({...d,settings:{...d.settings,...p,onboarded:true}}))}/>;
+  }
+
+  return (
+    <div className="app">
+      {tab==="home" && <Dashboard data={data} month={month} setMonth={setMonth} goTab={goTab} onAdd={addFromCurrent}/>}
+      {tab==="exp" && <ExpensesScreen data={data} month={month} tab={expTab} setTab={setExpTab}
+        openEdit={e=>setSheet({k:"exp",item:e})} openEditInc={i=>setSheet({k:"inc",item:i})} onAdd={addFromCurrent}/>}
+      {tab==="flow" && <CashflowScreen data={data}/>}
+      {tab==="ins" && <InsightsScreen data={data}/>}
+      {tab==="set" && <SettingsScreen data={data}
+        openProfile={()=>setSheet({k:"profile"})} openPay={()=>setSheet({k:"pay"})}
+        onExport={onExport} onImport={onImport} onReset={onReset}
+        onTheme={t=>setData(d=>({...d,settings:{...d.settings,theme:t}}))}/>}
+
+      <nav className="tabbar">
+        {[["home","house","הבית"],["exp","list","הוצאות"],["flow","chart","תזרים"],["ins","bulb","תובנות"],["set","gear","הגדרות"]].map(([id,ic,lb])=>(
+          <button key={id} className={"tab"+(tab===id?" on":"")} onClick={()=>goTab(id)}>{I[ic]}<span className="tl">{lb}</span></button>
+        ))}
+      </nav>
+
+      {sheet&&sheet.k==="exp"&&<ExpenseSheet item={sheet.item} payMethods={data.settings.payMethods} onSave={saveExp} onDelete={delExp} onClose={()=>setSheet(null)}/>}
+      {sheet&&sheet.k==="inc"&&<IncomeSheet item={sheet.item} onSave={saveInc} onDelete={delInc} onClose={()=>setSheet(null)}/>}
+      {sheet&&sheet.k==="profile"&&<ProfileSheet settings={data.settings} onSave={saveSettings} onClose={()=>setSheet(null)}/>}
+      {sheet&&sheet.k==="pay"&&<PaySheet payMethods={data.settings.payMethods} onSave={pm=>saveSettings({payMethods:pm})} onClose={()=>setSheet(null)}/>}
+      {toast&&<div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
