@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="כלכלת הבית">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>כלכלת הבית</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --sheet-bg:#F2F2F7; --sheet-card:#FFFFFF;
+  --label:#1C1C1E; --label2:#3C3C43; --secondary:#86868B; --tertiary:#C7C7CC;
+  --sep:rgba(60,60,67,.13); --fill:rgba(120,120,128,.12); --fill2:rgba(120,120,128,.07);
+  --blue:#007AFF; --green:#34C759; --red:#FF3B30; --orange:#FF9500; --yellow:#FFCC00;
+  --indigo:#5856D6; --purple:#AF52DE; --pink:#FF2D55; --teal:#30B0C7; --mint:#00C7BE; --cyan:#32ADE6; --brown:#A2845E; --gray:#8E8E93;
+  --bar-bg:rgba(242,242,247,.8); --glass:rgba(255,255,255,.66); --glass-brd:rgba(255,255,255,.8);
+  --glass-shadow:0 14px 34px rgba(0,0,0,.13),0 2px 6px rgba(0,0,0,.05);
+  --seg-on:#FFFFFF; --seg-bg:rgba(118,118,128,.12);
+  --hero-a:#0A84FF; --hero-b:#5E5CE6;
+  --rounded:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#000000; --card:#1C1C1E; --sheet-bg:#1C1C1E; --sheet-card:#2C2C2E;
+  --label:#FFFFFF; --label2:rgba(235,235,245,.86); --secondary:#8D8D93; --tertiary:#48484A;
+  --sep:rgba(84,84,88,.55); --fill:rgba(118,118,128,.24); --fill2:rgba(118,118,128,.14);
